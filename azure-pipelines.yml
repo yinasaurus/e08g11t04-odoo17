@@ -100,9 +100,7 @@ stages:
               runOptions: commands
               commands: |
                 set -e
-                pwd
-                ls
-                cd $(stagePath)/deploy-temp
+                cd $(stagePath)/deploy-temp/
                 echo "Uncompressing odoo.sql.gz..."
                 gunzip -c $(tempDeploy)/odoo.sql.gz > $(tempDeploy)/odoo.sql
                 echo "Uncompress complete: $(stagePath)/deploy-temp/odoo.sql"
@@ -115,6 +113,7 @@ stages:
               runOptions: commands
               commands: |
                 set -e
+                cd $(tempDeploy)/
                 pwd
                 ls -l
                 echo "$(STAGINGUSERPASSWORD)" | sudo -S -p '' chmod +x $(restoreDBscript)
