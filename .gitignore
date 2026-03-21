@@ -1,0 +1,14 @@
+# Ignore Azure DevOps Agent internal folders
+agent/prod-agent/_work/
+agent/prod-agent/_diag/
+agent/prod-agent/externals/
+agent/staging-agent/_work/
+agent/staging-agent/_diag/
+agent/staging-agent/externals/
+
+# Ignore node_modules within tasks
+**/node_modules/
+
+# Standard Odoo/Moodle ignores
+*.log
+__pycache__/
