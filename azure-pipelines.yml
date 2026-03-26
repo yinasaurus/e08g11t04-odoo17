@@ -1,16 +1,17 @@
 trigger:
   branches:
     include:
-      - Staging
+      - staging
       - master
 
 pool:
   name: Default
 
 variables:
-  repoUrl: 'https://github.com/yinasaurus/e08g11t04-odoo17'
-  updateScript: '/home/azureuser/deploy-temp/update_code.sh'
-  stagePath: '/home/azureuser/'
+  repoUrl: 'https://github.com/yinasaurus/e08g11t04-odoo17.git'
+  stagePath: '/home/shiyin_li_2024'
+  tempDeploy: '$(stagePath)/deploy-temp'
+  updateScript: '$(tempDeploy)/update_code.sh'
 
 stages:
 
@@ -19,7 +20,7 @@ stages:
 # =========================
 - stage: Staging
   displayName: Deploy to Staging
-  condition: eq(variables['Build.SourceBranchName'], 'Staging')
+  condition: eq(variables['Build.SourceBranchName'], 'staging')
 
   jobs:
   - deployment: DeployStaging
@@ -33,7 +34,7 @@ stages:
           - task: SSH@0
             displayName: "Sync Code - Staging"
             inputs:
-              sshEndpoint: 'ssh-odoo17'
+              sshEndpoint: 'ssh-odoo17-staging'
               runOptions: commands
               commands: |
                 set -e
@@ -41,7 +42,7 @@ stages:
                 cd $(stagePath)
                 rm -rf deploy-temp *-odoo17
 
-                git clone -b Staging $(repoUrl) --quiet
+                git clone -b staging $(repoUrl) --quiet
                 mv *-odoo17 deploy-temp
 
                 cd deploy-temp
@@ -52,7 +53,7 @@ stages:
           - task: SSH@0
             displayName: "Run Update Script - Staging"
             inputs:
-              sshEndpoint: 'ssh-odoo17'
+              sshEndpoint: 'ssh-odoo17-staging'
               runOptions: commands
               commands: |
                 echo "$(STAGINGUSERPASSWORD)" | sudo -S -p '' chmod +x $(updateScript)
@@ -78,7 +79,7 @@ stages:
           - task: SSH@0
             displayName: "Sync Code - Production"
             inputs:
-              sshEndpoint: 'ssh-odoo17-production'
+              sshEndpoint: 'ssh-odoo17-prod'
               runOptions: commands
               commands: |
                 set -e
@@ -97,25 +98,25 @@ stages:
           - task: SSH@0
             displayName: "Uncompress odoo.sql.gz on VM"
             inputs:
-              sshEndpoint: 'ssh-odoo17-production'
+              sshEndpoint: 'ssh-odoo17-prod'
               runOptions: commands
               commands: |
                 set -e
-                cd $(stagePath)/deploy-temp/
+                cd $(tempDeploy)
                 echo "Uncompressing odoo.sql.gz..."
                 gunzip -c $(tempDeploy)/odoo.sql.gz > $(tempDeploy)/odoo.sql
-                echo "Uncompress complete: $(stagePath)/deploy-temp/odoo.sql"
+                echo "Uncompress complete: $(tempDeploy)/odoo.sql"
 
           # Restore Database
           - task: SSH@0
             displayName: "Restore Database"
             inputs:
-              sshEndpoint: 'ssh-odoo17-production'
+              sshEndpoint: 'ssh-odoo17-prod'
               runOptions: commands
               commands: |
                 set -e
-                echo "$(STAGINGUSERPASSWORD)" | sudo -S -p '' cp /home/azureuser/deploy-temp/restore_db.sh /tmp/
-                echo "$(STAGINGUSERPASSWORD)" | sudo -S -p '' cp /home/azureuser/deploy-temp/odoo.sql /tmp/
+                echo "$(STAGINGUSERPASSWORD)" | sudo -S -p '' cp $(tempDeploy)/restore_db.sh /tmp/
+                echo "$(STAGINGUSERPASSWORD)" | sudo -S -p '' cp $(tempDeploy)/odoo.sql /tmp/
 
                 echo "$(STAGINGUSERPASSWORD)" | sudo -S -p '' chmod +x /tmp/restore_db.sh
                 echo "$(STAGINGUSERPASSWORD)" | sudo -S -p '' chmod 644 /tmp/odoo.sql
@@ -126,7 +127,7 @@ stages:
           - task: SSH@0
             displayName: "Run Update Script - Production"
             inputs:
-              sshEndpoint: 'ssh-odoo17-production'
+              sshEndpoint: 'ssh-odoo17-prod'
               runOptions: commands
               commands: |
                 echo "$(STAGINGUSERPASSWORD)" | sudo -S -p '' chmod +x $(updateScript)
