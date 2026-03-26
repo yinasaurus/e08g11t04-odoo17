@@ -9,7 +9,7 @@ pool:
 
 variables:
   repoUrl: 'https://github.com/yinasaurus/e08g11t04-odoo17.git'
-  stagePath: '/home/shiyin_li_2024'
+  stagePath: '/home/is214'
   tempDeploy: '$(stagePath)/deploy-temp'
   updateScript: '$(tempDeploy)/update_code.sh'
 
