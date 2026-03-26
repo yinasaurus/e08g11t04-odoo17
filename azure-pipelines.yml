@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - staging
+      - Staging
       - master
 
 pool:
@@ -20,7 +20,7 @@ stages:
 # =========================
 - stage: Staging
   displayName: Deploy to Staging
-  condition: eq(variables['Build.SourceBranchName'], 'staging')
+  condition: eq(variables['Build.SourceBranchName'], 'Staging')
 
   jobs:
   - deployment: DeployStaging
@@ -42,7 +42,7 @@ stages:
                 cd $(stagePath)
                 rm -rf deploy-temp *-odoo17
 
-                git clone -b staging $(repoUrl) --quiet
+                git clone -b Staging $(repoUrl) --quiet
                 mv *-odoo17 deploy-temp
 
                 cd deploy-temp
