@@ -12,3 +12,8 @@ agent/staging-agent/externals/
 # Standard Odoo/Moodle ignores
 *.log
 __pycache__/
+
+# Local lab/runtime folders (not source)
+agent/
+backup database/
+odoo_docker/
